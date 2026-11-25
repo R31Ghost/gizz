@@ -14,12 +14,15 @@ jobs:
     permissions:
       contents: read
       pages: read
+    outputs:
+      artifact_id: ${{ steps.upload.outputs.artifact_id }}
     steps:
       - name: Check out the release
         uses: actions/checkout@v6
       - name: Configure Pages
         uses: actions/configure-pages@v6
       - name: Upload the runtime
+        id: upload
         uses: actions/upload-pages-artifact@v5
         with:
           path: '.'
@@ -27,14 +30,33 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: read
       pages: write
       id-token: write
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.verify.outputs.page_url }}
     steps:
+      - name: Check out release verification tools
+        uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
       - name: Deploy
         id: deployment
+        continue-on-error: true
         uses: actions/deploy-pages@v5
+      - name: Publish using the artifact URL
+        id: fallback
+        if: steps.deployment.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PAGES_ARTIFACT_ID: ${{ needs.build.outputs.artifact_id }}
+        run: node .github/scripts/publish-pages.mjs
+      - name: Verify the public application and release
+        id: verify
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url || steps.fallback.outputs.page_url }}
+        run: node .github/scripts/publish-pages.mjs --verify-only

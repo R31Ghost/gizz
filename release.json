@@ -1,11 +1,11 @@
 {
   "format": "gizz-release",
   "version": 1,
-  "release": "0030",
+  "release": "0031",
   "source_repository": "R31Ghost/gizz-dev",
-  "source_commit": "4035f25b6c1d7cb48fd92a21a5ecdb7cfe95babe",
+  "source_commit": "562b2fccf570a1df44bf4a746b2b6425841a5152",
   "imported_site_commit": "fba46aeac313a50b0a6404e26825217cb2707bde",
-  "generated_at": "2026-11-25T15:57:16.258Z",
+  "generated_at": "2026-11-25T16:12:56.705Z",
   "files": {
     "accent-core.js": "691715975436d9574f5732f0bff94ab90118a9ba09e0f2ca81ad8c27569106e5",
     "activity.js": "ef30eda03a94a2e1d44270b7ffb1f40f011a12f87b0a26cd81d7ce168e092d70",
