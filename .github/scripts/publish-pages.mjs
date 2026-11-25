@@ -56,7 +56,7 @@ async function oidcFromEnvironment(env){
 if(process.argv[1] && resolve(process.argv[1])===fileURLToPath(import.meta.url)){
  try{
   const env=process.env;let url;
-  if(process.argv.includes('--verify-only'))url=await verifySite({url:env.PAGE_URL,expected:JSON.parse(await readFile('release.json','utf8'))});
+  if(process.argv.includes('--verify-only'))url=await verifySite({url:env.PAGE_URL,expected:JSON.parse(await readFile('release.json','utf8')),maxChecks:60});
   else url=await publishPages({repository:env.GITHUB_REPOSITORY,sha:env.GITHUB_SHA,artifactId:env.PAGES_ARTIFACT_ID,token:env.GH_TOKEN,getOidcToken:()=>oidcFromEnvironment(env)});
   if(env.GITHUB_OUTPUT)await appendFile(env.GITHUB_OUTPUT,'page_url='+url+'\n');
   console.log(process.argv.includes('--verify-only')?'Verified live release: '+url:'Published Pages deployment: '+url);

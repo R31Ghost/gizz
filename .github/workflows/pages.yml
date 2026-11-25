@@ -1,7 +1,5 @@
-name: Deploy Gizz to GitHub Pages
+name: Publish Gizz with Actions (optional)
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read

@@ -3,9 +3,9 @@
   "version": 1,
   "release": "0031",
   "source_repository": "R31Ghost/gizz-dev",
-  "source_commit": "8af6fe05e3d34d03cbb527af9c8dd39d5b42e75a",
+  "source_commit": "5bc2a2607ebdd09affdae1879c49e5734f7a78d5",
   "imported_site_commit": "fba46aeac313a50b0a6404e26825217cb2707bde",
-  "generated_at": "2026-11-25T16:17:33.181Z",
+  "generated_at": "2026-11-25T16:30:17.848Z",
   "files": {
     "accent-core.js": "691715975436d9574f5732f0bff94ab90118a9ba09e0f2ca81ad8c27569106e5",
     "activity.js": "ef30eda03a94a2e1d44270b7ffb1f40f011a12f87b0a26cd81d7ce168e092d70",

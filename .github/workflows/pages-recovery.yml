@@ -1,9 +1,6 @@
 name: Request clean Pages build
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths: ['.github/workflows/pages-recovery.yml']
 permissions:
   contents: read
   pages: write
@@ -14,10 +11,13 @@ jobs:
       - name: Inspect saved publishing configuration
         env:
           GH_TOKEN: ${{ github.token }}
-        run: >-
-          gh api -H 'X-GitHub-Api-Version: 2026-03-10'
-          repos/${{ github.repository }}/pages
-          --jq '{build_type,source,html_url,status,public,cname}'
+        run: |
+          mode=$(gh api -H 'X-GitHub-Api-Version: 2026-03-10' repos/${{ github.repository }}/pages --jq '.build_type')
+          if [ "$mode" != "legacy" ]; then
+            echo 'Managed builds require Deploy from a branch in Settings > Pages.'
+            exit 1
+          fi
+          gh api -H 'X-GitHub-Api-Version: 2026-03-10' repos/${{ github.repository }}/pages --jq '{build_type,source,html_url,status,public,cname}'
       - name: Request a fresh managed build
         env:
           GH_TOKEN: ${{ github.token }}
