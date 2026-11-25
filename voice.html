@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Play a modular synth voice with a keyboard, envelope, and VCA.">
+  <meta name="theme-color" content="#f6f4ee">
+  <title>Patchlab | Play a note</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="voice.css">
+  <script type="module" src="voice.js"></script>
+  <script type="module" src="workspace-view.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M3 12h3l2.5-6 4.5 12 2.5-6H21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Patchlab<span class="brand-dot">.</span></span></a>
+    <span class="edition"><i></i> MODULAR SYNTHESIS LAB</span>
+    <button class="audio-toggle" id="voice-audio" type="button">▶ Enable audio</button>
+  </header>
+  <main>
+    <nav class="lesson-nav" aria-label="Lessons"><a href="./">01 · First patch</a><a href="voice.html" aria-current="page">02 · Play a note</a><a href="voice.html?lesson=3">03 · Shape and move</a><a href="voice.html?lesson=4">04 · See and mix</a><a href="voice.html?lesson=5">05 · Sequence a patch</a><a href="voice.html?lesson=6">06 · Evolving sequence</a><a href="voice.html?lesson=7">07 · Independent cycles</a></nav>
+    <section class="intro voice-intro" aria-labelledby="voice-title">
+      <div class="eyebrow" id="voice-eyebrow"><span class="lesson-index">02</span> BUILD A VOICE <span class="eyebrow-line"></span> PATCH 02</div>
+      <h1 id="voice-title">Play a <em>note.</em></h1>
+      <p id="voice-description">A keyboard chooses the pitch, an envelope shapes the note, and a VCA applies that shape to the oscillator’s sound.</p>
+    </section>
+    <section class="rack" aria-labelledby="rack-title">
+      <header class="rack-head">
+        <div><span class="rack-kicker" id="voice-workbench">WORKBENCH / 02</span><h2 id="rack-title">Patch rack</h2></div>
+        <div class="rack-actions"><button type="button" class="reset" id="workspace-view" aria-pressed="false">Compact view</button><button type="button" class="reset" id="restore-layout" hidden>Restore layout</button><label class="example-picker" id="example-picker" hidden>Example <select id="voice-example"></select></label><button type="button" class="reset" id="voice-preset">Load example</button><button type="button" class="reset" id="voice-reset">↺ Reset patch</button></div>
+      </header>
+      <details class="unit-guide">
+        <summary>How to read the units</summary>
+        <dl>
+          <dt>Hz · cycles per second</dt><dd>Oscillator pitch and LFO rate count repeating cycles. Filter cutoff uses Hz to mark a point in the frequency response. A 2 Hz LFO takes 500 ms per cycle.</dd>
+          <dt>ms · milliseconds</dt><dd>1,000 ms is one second. Attack, decay, release, and keyboard glide measure how long a change takes. The scope window measures how much time fits across its screen.</dd>
+          <dt>% · amount</dt><dd>Sustain is a percentage of the envelope peak. Depth and mixer levels scale signals. Output level is a percentage of its control range.</dd>
+          <dt>dB and signal units</dt><dd>Resonance in dB is a filter setting. The scope’s vertical scale shows normalized signal values. On its screen, count divisions between peaks and multiply by ms/div to find a period. Divide 1,000 by that period in ms to get Hz.</dd>
+        </dl>
+      </details>
+      <p class="rack-example-hint" id="rack-example-hint" hidden></p>
+      <p class="rack-instructions" id="free-instructions" hidden>Tap two jacks to connect. Instruments keep their patch jacks in the rack; Edit modules and Edit sequence open floating editors. Drag an editor by its title or use − to collapse it while choosing the next jack. Sources scrolls separately. Output in stays in the black bar; tap it alone for listening settings. Tap any jack for its voltage meter.</p>
+      <div class="rack-start" id="rack-start" hidden>
+        <div><strong>Start with a patch</strong><p>Hear the example, or select two jacks to build your own.</p></div>
+        <button type="button" class="reset" id="rack-example">Load example</button>
+      </div>
+      <div class="voice-bay" id="voice-bay">
+        <article class="module keys-module">
+          <header class="module-head"><span class="module-index">01 / CONTROLLER</span><h3>Keyboard</h3><p>Play the labeled keys, or slide across them. Hold a note while you change a control.</p></header>
+          <div class="module-controls">
+            <div class="keyboard-toolbar"><button type="button" class="reset" id="octave-down" aria-label="Octave down (Z)">− Oct <kbd>Z</kbd></button><output class="readout" id="octave-readout">Octave 0</output><button type="button" class="reset" id="octave-up" aria-label="Octave up (X)">+ Oct <kbd>X</kbd></button><button type="button" class="reset" id="release-keys" title="Release all held keys and sustain pedals">Release keys</button></div>
+            <div class="piano" id="piano" role="group" aria-label="Play notes"></div>
+            <p class="readout" id="keyboard-readout">Last A3 · Gate low</p>
+          </div>
+          <div class="port-strip"><button class="port" data-port="pitchOut" type="button" aria-pressed="false">Pitch out</button><button class="port" data-port="gateOut" type="button" aria-pressed="false">Gate out</button></div>
+        </article>
+        <article class="module oscillator">
+          <header class="module-head"><span class="module-index">02 / AUDIO SOURCE</span><h3>Oscillator</h3><p>Runs continuously. Pitch is shown in cycles per second (Hz).</p></header>
+          <div class="module-controls">
+            <div id="oscillator-controls" class="voice-control"><label for="voice-wave">Waveform</label><select id="voice-wave"><option value="sine">Sine</option><option value="triangle">Triangle</option><option value="sawtooth">Saw</option><option value="square">Square</option></select></div>
+            <p class="readout" id="voice-frequency">220 Hz · fixed pitch</p>
+          </div>
+          <div class="port-strip"><button class="port" data-port="pitchIn" type="button" aria-pressed="false">Pitch in</button><button class="port" data-port="oscOut" type="button" aria-pressed="false">Audio out</button></div>
+        </article>
+        <article class="module envelope-module">
+          <header class="module-head"><span class="module-index">03 / MODULATION</span><h3>ADSR Envelope</h3><p>Attack, decay, and release are times. Sustain is the level while the gate stays high.</p></header>
+          <div class="module-controls adsr-controls" id="adsr-controls">
+            <div class="envelope-meter"><span>Envelope level</span><meter id="envelope-meter" min="0" max="1" value="0" aria-label="Envelope level"></meter><span id="envelope-gate" hidden>Gate low</span></div>
+          </div>
+          <div class="port-strip"><button class="port" data-port="gateIn" type="button" aria-pressed="false">Gate in</button><button class="port" data-port="envOut" type="button" aria-pressed="false">Envelope out</button></div>
+        </article>
+        <article class="module vca-module">
+          <header class="module-head"><span class="module-index">04 / AMPLITUDE</span><h3>VCA</h3><p>Scales audio by the signal arriving at CV in.</p></header>
+          <div class="module-controls"><p class="readout" id="vca-readout">Closed · no CV</p></div>
+          <div class="port-strip"><button class="port" data-port="vcaIn" type="button" aria-pressed="false">Audio in</button><button class="port" data-port="cvIn" type="button" aria-pressed="false">CV in</button><button class="port" data-port="vcaOut" type="button" aria-pressed="false">Audio out</button></div>
+        </article>
+        <article class="module output">
+          <header class="module-head"><span class="module-index">05 / DESTINATION</span><h3>Output</h3><p>Sets the final level as a percentage of the output control’s range.</p></header>
+          <div class="module-controls">
+            <div class="slider-control"><div><label for="voice-level">Level</label><output id="voice-level-value" for="voice-level">25%</output></div><input id="voice-level" type="range" min="0" max="100" value="25" aria-valuetext="25%"></div>
+            <button type="button" class="mute" id="voice-mute" aria-pressed="false">Mute output</button>
+          </div>
+          <div class="port-strip"><button class="port" data-port="audioIn" type="button" aria-pressed="false">Audio in</button></div>
+        </article>
+        <svg class="cables" id="voice-cables" aria-hidden="true"></svg>
+      </div>
+      <footer class="rack-foot"><p id="voice-status" role="status">Select an output, then an input of the same signal type. Select a connected input to unplug it.</p></footer>
+      <details class="cable-list" id="cable-panel" open hidden><summary>Cables <span id="cable-count">0</span></summary><ul id="cable-list"></ul></details>
+    </section>
+    <div class="voice-guide" id="voice-guide">
+      <section class="lesson" aria-labelledby="voice-lesson">
+        <p class="lesson-kicker">◉ GUIDED PATCH</p><h2 id="voice-lesson">From a tone to a note</h2>
+        <ol class="voice-steps">
+          <li>Connect <strong>Oscillator Audio out → VCA Audio in → Output Audio in</strong>. Use the VCA’s Audio out for the second cable.</li>
+          <li>Connect <strong>Keyboard Pitch out → Oscillator Pitch in</strong>.</li>
+          <li>Connect <strong>Keyboard Gate out → ADSR Gate in</strong> and <strong>Envelope out → VCA CV in</strong>.</li>
+          <li>Enable audio. Hold a key, then release it. Try a longer release and listen to how long the note takes to fade.</li>
+        </ol>
+      </section>
+      <section class="lesson" aria-labelledby="voice-theory">
+        <p class="lesson-kicker">◉ UNDER THE PANEL</p><h2 id="voice-theory">Hardware and simulation</h2>
+        <dl class="voice-theory">
+          <dt>Keyboard</dt><dd>Hardware sends a pitch voltage and a separate gate voltage. With 1 V/octave, adding 1 V doubles frequency. Here, a note number sets the oscillator frequency and a held-key flag acts as the gate.</dd>
+          <dt>ADSR Envelope</dt><dd>In a typical analog circuit, a capacitor charges or discharges to make a changing voltage. Here, timed linear ramps rise to a peak, fall to the sustain level, then fall to zero after release.</dd>
+          <dt>VCA</dt><dd>A control voltage sets how much of the input signal passes through. Here, a Web Audio gain node multiplies each audio sample by the envelope, from 0 (closed) to 1 (full level).</dd>
+        </dl>
+      </section>
+    </div>
+    <footer class="page-foot"><span>PATCHLAB / LEARNING SERIES</span><span id="voice-edition">02 — KEYBOARD + ADSR + VCA</span></footer>
+  </main>
+  <template id="modulation-modules">
+    <article class="module filter-module">
+      <header class="module-head"><span class="module-index">06 / TONE</span><h3>Low-pass filter</h3><p>Cutoff is the frequency where the response starts to roll off. Resonance shapes the response near cutoff.</p></header>
+      <div class="module-controls" id="filter-controls"></div>
+      <div class="port-strip"><button class="port" data-port="filterIn" type="button" aria-pressed="false">Audio in</button><button class="port" data-port="cutoffIn" type="button" aria-pressed="false">Cutoff CV in</button><button class="port" data-port="filterOut" type="button" aria-pressed="false">Audio out</button></div>
+    </article>
+    <article class="module lfo-module">
+      <header class="module-head"><span class="module-index">07 / CYCLIC CV</span><h3>LFO</h3><p>Rate is cycles per second. The readout also shows how long one cycle lasts.</p></header>
+      <div class="module-controls" id="lfo-controls">
+        <div class="voice-control"><label for="lfoShape">Shape</label><select id="lfoShape"><option value="sine">Sine</option><option value="triangle">Triangle</option></select></div>
+      </div>
+      <div class="port-strip"><button class="port" data-port="lfoOut" type="button" aria-pressed="false">CV out</button></div>
+    </article>
+    <article class="module attenuator-module">
+      <header class="module-head"><span class="module-index">08 / CV LEVEL</span><h3>Attenuator</h3><p>Depth is the percentage of the incoming signal that passes through.</p></header>
+      <div class="module-controls" id="attenuator-controls"></div>
+      <div class="port-strip"><button class="port" data-port="attenIn" type="button" aria-pressed="false">CV in</button><button class="port" data-port="attenOut" type="button" aria-pressed="false">CV out</button></div>
+    </article>
+  </template>
+  <template id="modulation-guide">
+    <section class="lesson">
+      <p class="lesson-kicker">◉ GUIDED PATCH</p><h2>Make the tone move</h2>
+      <ol class="voice-steps">
+        <li>Load <strong>Repeating filter sweep</strong>, enable audio, and hold a note. The sound runs from <strong>Oscillator → Low-pass filter → VCA → Output</strong>.</li>
+        <li>The example routes <strong>LFO → Attenuator → Cutoff CV in</strong>. Set Depth to 0% and sweep Cutoff by hand, then raise Depth and listen for the repeating sweep.</li>
+        <li>Remove the cutoff cable from the cable list and connect Attenuator CV out to <strong>Oscillator Pitch CV in</strong>. Keep Depth low for subtle vibrato.</li>
+        <li>For a sweep that follows each note, connect <strong>Envelope out → Cutoff CV in</strong>. The same envelope can still control the VCA.</li>
+      </ol>
+    </section>
+    <section class="lesson">
+      <p class="lesson-kicker">◉ UNDER THE PANEL</p><h2>Hardware and simulation</h2>
+      <dl class="voice-theory">
+        <dt>Low-pass filter</dt><dd>Analog filter stages store energy and respond less to fast changes. Patchlab uses a digital two-pole filter. Resonance changes the response around cutoff.</dd>
+        <dt>LFO</dt><dd>A slow oscillator repeatedly varies a control voltage. Patchlab uses a sine or triangle oscillator whose normalized output swings between −1 and +1.</dd>
+        <dt>Attenuator</dt><dd>A voltage divider can pass a fraction of its input voltage. Patchlab multiplies the control signal by Depth, so 25% gives a quarter of the pitch or cutoff excursion.</dd>
+      </dl>
+    </section>
+  </template>
+  <template id="studio-modules">
+    <article class="module scope-module">
+      <header class="module-head"><span class="module-index">09 / MEASURE</span><h3>Scope</h3><p>See two signals on the same time axis.</p></header>
+      <div class="module-controls">
+        <canvas id="scope-screen" class="scope-screen" width="520" height="170" aria-label="Waveform traces for channels A and B"></canvas>
+        <p class="readout" id="scope-scale">25 ms across · 3.13 ms/div</p><p class="readout" id="scope-range-readout">Vertical range ±1 signal units</p>
+        <p class="readout" id="scope-readout">A · Unpatched / B · Unpatched</p>
+        <div class="voice-control"><label for="scopeWindow">Time window</label><select id="scopeWindow"><option value="5">5 ms</option><option value="25">25 ms</option><option value="100">100 ms</option><option value="250">250 ms</option></select>
+        <label for="scopeRange">Vertical range</label><select id="scopeRange"><option value="1">±1</option><option value="2">±2</option><option value="5">±5</option></select></div>
+      </div>
+      <div class="port-strip"><button class="port" data-port="scopeInA" type="button">Scope A in</button><button class="port" data-port="scopeInB" type="button">Scope B in</button><button class="port" data-port="scopeThruA" type="button">Thru A</button><button class="port" data-port="scopeThruB" type="button">Thru B</button></div>
+    </article>
+    <article class="module mixer-module">
+      <header class="module-head"><span class="module-index">10 / SUM</span><h3>Mixer</h3><p>Each level is the percentage of its input added to the mix.</p></header>
+      <div class="module-controls" id="mixer-controls"></div>
+      <div class="port-strip"><button class="port" data-port="mixInA" type="button">A in</button><button class="port" data-port="mixInB" type="button">B in</button><button class="port" data-port="mixInC" type="button">C in</button><button class="port" data-port="mixInD" type="button">D in</button><button class="port" data-port="mixOut" type="button">Mix out</button></div>
+    </article>
+    <article class="module noise-module">
+      <header class="module-head"><span class="module-index">11 / AUDIO SOURCE</span><h3>Noise</h3><p>White noise has energy spread across the audible spectrum.</p></header>
+      <div class="module-controls"><p class="readout">White and low-pass noise · continuous</p></div>
+      <div class="port-strip"><button class="port" data-port="noiseOut" type="button">White out</button><button class="port" data-port="darkNoiseOut" type="button">Dark out</button></div>
+    </article>
+  </template>
+  <template id="studio-keyboard">
+    <details class="keyboard-settings">
+      <summary>Performance and MIDI</summary>
+      <div class="voice-control"><label for="octave">Octave</label><select id="octave"><option value="-2">−2</option><option value="-1">−1</option><option value="0">0</option><option value="1">+1</option><option value="2">+2</option></select>
+        <label for="priority">Priority</label><select id="priority"><option value="last">Last</option><option value="high">High</option><option value="low">Low</option></select></div>
+      <div class="voice-control"><label><input type="checkbox" id="retrigger"> Retrigger</label><label><input type="checkbox" id="invertGate"> Invert gate</label></div>
+      <div class="voice-control"><label><input type="checkbox" id="volumeVelocity" checked> Velocity → volume CV</label><label><input type="checkbox" id="controllerVelocity"> Velocity → controller CV</label></div>
+      <div id="performance-sliders"></div>
+      <div class="voice-control"><button type="button" class="reset" id="enable-midi">Connect MIDI</button><span id="midi-status" role="status">On-screen and computer keys ready.</span></div>
+      <div class="voice-control"><label for="midiChannel">MIDI channel</label><input type="number" id="midiChannel" min="1" max="16" value="1">
+        <label for="ccNumber">Controller CC</label><input type="number" id="ccNumber" min="0" max="127" value="1">
+        <label for="referenceNote">0 V MIDI note</label><input type="number" id="referenceNote" min="0" max="127" value="57"></div>
+    </details>
+  </template>
+  <template id="studio-guide">
+    <section class="lesson">
+      <p class="lesson-kicker">◉ GUIDED PATCH</p><h2>See the signal, hear the mix</h2>
+      <ol class="voice-steps">
+        <li>Load <strong>Oscillator and noise blend</strong> and enable audio. Hold a note and turn the mixer’s B level up to blend noise into the oscillator.</li>
+        <li>Channel A on the Scope shows the mix. Channel B shows the envelope. Switch to 250 ms to see more of the envelope as you press and release.</li>
+        <li>Turn A down to make a noise-only hit. Try a shorter release.</li>
+        <li>Open the Keyboard’s Performance and MIDI panel. Compare two overlapping notes with Glide at 0 and 300 ms. Unplug the envelope from VCA CV in, then patch Velocity × Volume out to that input to hear its effect by itself.</li>
+      </ol>
+    </section>
+    <section class="lesson">
+      <p class="lesson-kicker">◉ UNDER THE PANEL</p><h2>Hardware and simulation</h2>
+      <dl class="voice-theory">
+        <dt>Scope</dt><dd>An oscilloscope plots voltage over time. Patchlab draws samples from two Web Audio analysers, including slow signals and steady voltage.</dd>
+        <dt>Mixer</dt><dd>A summing circuit combines scaled voltages. Patchlab scales each input and adds the four sample streams.</dd>
+        <dt>Noise</dt><dd>Analog noise can come from electrical fluctuations in a semiconductor. Patchlab loops a four-second buffer of independent random samples.</dd>
+        <dt>Keyboard interface</dt><dd>Modeled on the Doepfer A-190-2. Its MIDI messages become separate pitch, gate, bend, velocity × volume, and controller signals.</dd>
+      </dl>
+    </section>
+  </template>
+  <template id="rhythm-modules">
+    <article class="module clock-module">
+      <header class="module-head"><span class="module-index">12 / TIMING SOURCE</span><h3>Clock</h3><p>Generates repeating pulses. BPM sets the beat, and division sets pulses per beat.</p></header>
+      <div class="module-controls" id="clock-controls">
+        <div class="voice-control"><button type="button" class="reset" id="clock-transport">Play clock</button><label for="division">Pulse division</label>
+          <select id="division"><option value="1">Quarter notes</option><option value="2">Eighth notes</option><option value="4">Sixteenth notes</option></select></div>
+        <p class="readout" id="clock-interval"></p>
+      </div>
+      <div class="port-strip"><button class="port" data-port="clockOut" type="button">Clock out</button></div>
+    </article>
+    <article class="module sequencer-module">
+      <header class="module-head"><span class="module-index">13 / PITCH + GATE</span><h3>Sequencer</h3><p>Each incoming pulse advances one step. Turn Gate off to make a rest.</p></header>
+      <div class="module-controls">
+        <div id="sequencer-steps"></div>
+      </div>
+      <div class="port-strip"><button class="port" data-port="seqClockIn" type="button">Clock in</button><button class="port" data-port="seqResetIn" type="button">Reset in</button><button class="port" data-port="seqPitchOut" type="button">Pitch out</button><button class="port" data-port="seqGateOut" type="button">Gate out</button></div>
+    </article>
+  </template>
+  <template id="patch-shelf-template">
+    <details class="patch-shelf" id="patch-shelf">
+      <summary>Save and open patches</summary>
+      <div class="patch-shelf-controls">
+        <form id="save-patch"><label for="patch-name">Patch name</label><input id="patch-name" maxlength="48" required placeholder="My patch"><button type="submit" class="reset">Save patch</button></form>
+        <div><label for="saved-patches">Saved patches</label><select id="saved-patches"><option value="">No saved patches</option></select><button type="button" class="reset" id="open-patch" disabled>Open patch</button></div>
+      </div>
+      <div class="patch-file-controls"><button type="button" class="reset" id="export-patch">Export current patch</button><label>Import patch file <input id="import-patch" type="file" accept=".json,.patchlab.json,application/json"></label></div>
+      <p class="readout" id="patch-storage-status" role="status">Save keeps a copy in this browser. Export keeps a portable backup. Import opens a patch for this lesson with audio and clock off.</p>
+    </details>
+  </template>
+  <template id="rhythm-guide">
+    <section class="lesson">
+      <p class="lesson-kicker">◉ GUIDED PATCH</p><h2>Turn a patch into a pattern</h2>
+      <ol class="voice-steps">
+        <li>Load <strong>Play keys over a bassline</strong>, select <strong>Enable audio</strong>, then press <strong>Play clock</strong>. Hold a keyboard key over the sequence. Each part has its own oscillator, ADSR, and VCA; Mixer A is bass and B is keyboard. Choose <strong>Sixteen-step call and response</strong> to build a longer phrase.</li>
+        <li>Turn some gates off to change the bass rhythm. Change Keyboard envelope Release while holding a key, then release it. The bass envelope keeps its short release.</li>
+        <li>Try a slower tempo or switch from eighth to quarter notes. The time between steps is shown on the Clock.</li>
+        <li>Open the Sequencer’s <strong>Patterns · Save and switch</strong>. Name and save a phrase, edit steps 9–16, then save a variation. Load either pattern at the end of the loop. Use <strong>Save and open patches</strong> to keep the complete rack and pattern library.</li>
+      </ol>
+    </section>
+    <section class="lesson">
+      <p class="lesson-kicker">◉ UNDER THE PANEL</p><h2>Clock, pitch, and gate</h2>
+      <dl class="voice-theory">
+        <dt>Clock</dt><dd>Hardware clocks put out regular voltage pulses. Patchlab generates the pulses on the browser’s audio clock.</dd>
+        <dt>Sequencer</dt><dd>Each rising edge advances a counter. The selected step sets a pitch voltage and determines whether the clock pulse passes through as a gate.</dd>
+      </dl>
+    </section>
+  </template>
+  <template id="evolving-modules">
+    <article class="module divider-module">
+      <header class="module-head"><span class="module-index">14 / RHYTHM</span><h3>Clock Divider</h3><p>Passes one pulse every N clock pulses.</p></header>
+      <div class="module-controls"><div class="voice-control">
+        <label for="dividerRatio">Divide by</label>
+        <select id="dividerRatio"><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="8">8</option></select>
+      </div></div>
+      <div class="port-strip"><button class="port" data-port="dividerIn" type="button">Clock in</button><button class="port" data-port="dividerOut" type="button">Divided out</button></div>
+    </article>
+    <article class="module accent-module">
+      <header class="module-head"><span class="module-index">15 / PERCUSSION</span><h3>Accent</h3><p>A trigger opens the audio path, which fades over the decay time.</p></header>
+      <div class="module-controls" id="accent-controls"></div>
+      <div class="port-strip"><button class="port" data-port="accentIn" type="button">Audio in</button><button class="port" data-port="accentTriggerIn" type="button">Trigger in</button><button class="port" data-port="accentOut" type="button">Audio out</button></div>
+    </article>
+  </template>
+  <template id="evolving-guide">
+    <section class="lesson">
+      <p class="lesson-kicker">◉ GUIDED PATCH</p><h2>Keep the clock running</h2>
+      <ol class="voice-steps">
+        <li>Load <strong>Lead over an evolving groove</strong>, enable audio, and press <strong>Play clock</strong>. Hold a keyboard key over the bass and divided noise accents. Mixer A is bass, B is percussion, and C is keyboard. Choose <strong>Evolving groove</strong> to focus on bass and accents alone.</li>
+        <li>Turn <strong>Attenuator Depth</strong> down to 0% to hear a fixed cutoff, then restore it to 25%.</li>
+        <li>Turn <strong>Mixer B</strong> down to 0% to hear just the bassline, then restore it to 30%. Change <strong>Divide by</strong> from 4 to 3 and listen to the accent shift against the eight steps.</li>
+        <li>Change Keyboard envelope Release and compare it with the original ADSR: only the played lead changes. Try <strong>Pitched percussion</strong> or <strong>Clock the sequencer through a divider</strong> for separate rhythm experiments.</li>
+      </ol>
+    </section>
+    <section class="lesson">
+      <p class="lesson-kicker">◉ SIGNAL PATHS</p><h2>One clock, two rhythms</h2>
+      <dl class="voice-theory">
+        <dt>Tone</dt><dd>Clock → Sequencer. Oscillator → Filter → VCA → Mixer A. LFO → Attenuator → Filter Cutoff CV.</dd>
+        <dt>Accent</dt><dd>Clock → Clock Divider → Accent Trigger in. White Noise → Accent Audio in → Mixer B.</dd>
+        <dt>Compare</dt><dd>Scope A shows the Clock and B shows the divided pulses. The clock and note pattern continue as you change the two branches.</dd>
+      </dl>
+    </section>
+  </template>
+</body>
+</html>

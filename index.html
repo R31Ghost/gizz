@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Learn modular synthesis by building your first patch, one cable at a time.">
+  <meta name="theme-color" content="#f6f4ee">
+  <title>Patchlab | Your first patch</title>
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="app.js"></script>
+  <script type="module" src="workspace-view.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="Patchlab home">
+      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M3 12h3l2.5-6 4.5 12 2.5-6H21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <span>Patchlab<span class="brand-dot">.</span></span>
+    </a>
+    <span class="edition"><i></i> MODULAR SYNTHESIS LAB</span>
+    <button type="button" class="audio-toggle" id="enable-audio"><span class="audio-icon" aria-hidden="true">▶</span><span id="audio-label">Enable audio</span></button>
+  </header>
+  <main>
+    <nav class="lesson-nav" aria-label="Lessons"><a href="./" aria-current="page">01 · First patch</a><a href="voice.html">02 · Play a note</a><a href="voice.html?lesson=3">03 · Shape and move</a><a href="voice.html?lesson=4">04 · See and mix</a><a href="voice.html?lesson=5">05 · Sequence a patch</a><a href="voice.html?lesson=6">06 · Evolving sequence</a><a href="voice.html?lesson=7">07 · Independent cycles</a></nav>
+    <section class="intro" aria-labelledby="page-title">
+      <div class="eyebrow"><span class="lesson-index">01</span> THE BASICS <span class="eyebrow-line"></span> PATCH 01</div>
+      <h1 id="page-title">Your first <em>patch.</em></h1>
+      <p>Meet the oscillator, the starting point of a synth voice. Connect it to the output, then listen to what changes when you shape the wave.</p>
+    </section>
+
+    <div class="workspace">
+      <section class="rack" aria-labelledby="rack-title">
+        <header class="rack-head">
+          <div><span class="rack-kicker">WORKBENCH / 01</span><h2 id="rack-title">Patch rack</h2></div>
+          <div class="rack-actions"><button type="button" class="reset" id="workspace-view" aria-pressed="false">Compact view</button>
+            <label class="example-picker">Example <select id="first-example"></select></label>
+            <button type="button" class="reset" id="load-first-example">Load example</button>
+            <button type="button" class="reset" id="reset"><span aria-hidden="true">↺</span> Reset patch</button>
+          </div>
+        </header>
+        <p class="rack-example-hint" id="first-example-hint" role="status" hidden></p>
+        <div class="rack-bay" id="rack-bay">
+          <article class="module oscillator" aria-labelledby="oscillator-title">
+            <header class="module-head">
+              <span class="module-index">01 / SOURCE</span>
+              <h3 id="oscillator-title">Oscillator</h3>
+              <p>Generates a repeating signal. Pitch in Hz tells you how many cycles occur each second.</p>
+            </header>
+            <div class="wave-screen" aria-hidden="true">
+              <span>WAVE SHAPE</span>
+              <svg viewBox="0 0 200 48" preserveAspectRatio="none"><path id="wave-shape" d=""/></svg>
+            </div>
+            <div class="module-controls">
+              <fieldset class="wave-picker">
+                <legend>Waveform</legend>
+                <div class="wave-options">
+                  <label><input name="waveform" type="radio" value="sine" checked><span>Sine</span></label>
+                  <label><input name="waveform" type="radio" value="triangle"><span>Tri</span><span class="sr-only">angle</span></label>
+                  <label><input name="waveform" type="radio" value="sawtooth"><span>Saw</span><span class="sr-only">tooth</span></label>
+                  <label><input name="waveform" type="radio" value="square"><span>Square</span></label>
+                </div>
+              </fieldset>
+              <div class="slider-control">
+                <div><label for="pitch">Pitch</label><output id="pitch-value" for="pitch">220 Hz</output></div>
+                <input id="pitch" type="range" min="0" max="36" value="12" aria-valuetext="220 Hz">
+              </div>
+            </div>
+            <div class="port-strip">
+              <button type="button" class="port" id="source-port" aria-pressed="false"><span class="jack" aria-hidden="true"></span><span>Audio out</span></button>
+            </div>
+          </article>
+          <article class="module output" aria-labelledby="output-title">
+            <header class="module-head">
+              <span class="module-index">02 / DESTINATION</span>
+              <h3 id="output-title">Output</h3>
+              <p>Sends sound to your speakers.</p>
+            </header>
+            <div class="signal-panel" aria-hidden="true">
+              <span class="signal-light"></span>
+              <span id="signal-display">NO SIGNAL</span>
+            </div>
+            <div class="module-controls">
+              <div class="slider-control">
+                <div><label for="level">Level</label><output id="level-value" for="level">25%</output></div>
+                <input id="level" type="range" min="0" max="100" value="25" aria-valuetext="25%">
+              </div>
+              <button type="button" class="mute" id="mute" aria-pressed="false"><span class="mute-light"></span> Mute output</button>
+            </div>
+            <div class="port-strip">
+              <button type="button" class="port" id="input-port" aria-pressed="false"><span class="jack" aria-hidden="true"></span><span>Audio in</span></button>
+            </div>
+          </article>
+          <svg class="cables" aria-hidden="true"><path id="cable-shadow"/><path id="cable"/></svg>
+        </div>
+        <footer class="rack-foot"><span class="patch-state" id="patch-state">UNPATCHED</span><p id="patch-message" role="status">Select Audio out, then Audio in, to connect the modules.</p></footer>
+      </section>
+
+      <aside class="lesson" aria-labelledby="lesson-title">
+        <p class="lesson-kicker"><span aria-hidden="true">◉</span> GUIDED PATCH</p>
+        <h2 id="lesson-title">From signal<br> to sound</h2>
+        <p class="lesson-copy">Build the shortest playable signal path. Then hear what the oscillator can do.</p>
+        <ol class="steps">
+          <li id="step-audio"><span class="step-number" aria-hidden="true">01</span><div><h3>Enable audio</h3><p>Use the button at the top to start the audio engine.</p></div></li>
+          <li id="step-patch"><span class="step-number" aria-hidden="true">02</span><div><h3>Make the connection</h3><p>Select <strong>Audio out</strong> on the oscillator, then <strong>Audio in</strong> on the output.</p></div></li>
+          <li id="step-compare"><span class="step-number" aria-hidden="true">03</span><div><h3>Compare waveforms</h3><p>Try <strong>Saw</strong> at the same pitch as <strong>Sine</strong>. Which sounds brighter?</p></div></li>
+        </ol>
+        <div class="lesson-note"><strong>Try it by ear</strong><p>Raise the pitch, then change the wave shape. Which control changes how high the note sounds?</p></div>
+      </aside>
+    </div>
+    <footer class="page-foot"><span>PATCHLAB / LEARNING SERIES</span><span>01 — OSCILLATOR + OUTPUT</span></footer>
+  </main>
+</body>
+</html>
